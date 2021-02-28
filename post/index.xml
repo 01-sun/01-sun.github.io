@@ -13,7 +13,39 @@
       <pubDate>Wed, 24 Feb 2021 08:24:11 +0800</pubDate>
       
       <guid>https://01-sun.github.io/post/lua%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0-%E7%AC%94%E8%AE%B0/</guid>
-      <description></description>
+      <description>前言 用了一年多的lua，却对这个语言只是止于使用，乘着过年放假，把这本《lua设计与实现》读完。作者用最通俗易懂的语言讲述lua的底层实现，对lua从数据类型到虚拟机，再到回收机制进行层层剖析，使得笔者对lua有大体了解，而又好记性不如烂笔头，因此作此笔记。
+ 通用数据类型 目标： 不同时刻同一变量指向不同数据类型
+思路：需要两个字段，一个存储数据类型，一个存储数据
+实现：通过union和struct，之间嵌套、有机结合形成lua_TValue，来统一表示所有数据类型。可进行GC（垃圾回收）操作的数据有CommonHeader宏定义的成员
+注：number不是可GC类型
+lua通用数据结构组织（如图）
+ 字符串-string 目标：尽可能提高效率存储字符串
+思路：存储字符串的变量是对该字符串的引用，所以需要两个字段，一个存储字符串的长度，一个存储字符串数据的引用（散列值）
+实现：
+typedef uinion TString{ L_Umaxalign dumy; //对齐变量 （节省空间）  struct{ commonHeader; //GC宏  lu_byte reserved; //表示是不是保留字符串  unsigned int hash;//散列值  size_t len; //字符串长度  }tsu; }TString; 特点：
+“内化”：字符串变量是对字符串的引用，当创建字符串前先检查全局数据区有无该串，无则创建，有则引用。（ps：用时间换空间，同时lua的查找算法效率也很高）
+“散列值”：加快对字符串数据比较和查找
+存储：
+所有字符串存储在全局数据区，该区为全局变量global_state的str成员,str本质为散列数组
+typedef struct stringtable{ GCObject **hash; lu_int32 nuse; //元素值  int size; }stringtable; 创建字符串Tstring，首先根据散列算法算出散列值，为str的索引值，若位置上已有值，则用链表串联起来
+rehash（重新哈希）:当散列桶中数量非常大，算法效率急速下降，所以需要重新分配散列桶数量，来降低每个桶中的数量（luaS_resize()）
+lua_Tip:
+尽量少用大量循环来连接字符串，因为每次连接都会产生新串，费时又费空间。而用表来做字符串缓冲区（先用表循环存储，再用table.concat连接），会节省空间,提高效率。
+ 表-table 目标：存储所有数据类型，并对使用者透明
+思路：两个部分，分数组和散列表
+实现：
+type struct Table{ CommonHeader; lu_byte flags; //提供元方法标志  lu_byte lsizenode; //以2为第的散列桶大小  struct Table *metable; //远比闹  TValue *array; //数组部分指针  Node *node; //散列桶起始位置  Node *lastfree; //散列桶最后位置  GCObject *gclist; int sizearray; //数组部分大小 } 重要操作</description>
+    </item>
+    
+    <item>
+      <title>(Hu)go Template Primer</title>
+      <link>https://01-sun.github.io/post/goisforlovers/</link>
+      <pubDate>Wed, 02 Apr 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://01-sun.github.io/post/goisforlovers/</guid>
+      <description>&lt;p&gt;Hugo uses the excellent &lt;a href=&#34;http://golang.org/&#34;&gt;go&lt;/a&gt; &lt;a href=&#34;http://golang.org/pkg/html/template/&#34;&gt;html/template&lt;/a&gt; library for
+its template engine. It is an extremely lightweight engine that provides a very
+small amount of logic.&lt;/p&gt;</description>
     </item>
     
   </channel>

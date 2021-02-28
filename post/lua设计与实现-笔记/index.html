@@ -46,8 +46,8 @@
                     </h1>
                     <h2 class="headline">
                     Feb 24, 2021 08:24
-                    · 0 word
-                    · 0 minute read
+                    · 185 words
+                    · 1 minute read
                       <span class="tags">
                       
                       </span>
@@ -55,7 +55,187 @@
                 </header>
                 
                 <section id="post-body">
-                    
+                    <h3 id="前言"><strong>前言</strong></h3>
+<p>用了一年多的lua，却对这个语言只是止于使用，乘着过年放假，把这本《lua设计与实现》读完。作者用最通俗易懂的语言讲述lua的底层实现，对lua从数据类型到虚拟机，再到回收机制进行层层剖析，使得笔者对lua有大体了解，而又好记性不如烂笔头，因此作此笔记。</p>
+<hr>
+<h3 id="通用数据类型"><strong>通用数据类型</strong></h3>
+<p><strong>目标</strong>： 不同时刻同一变量指向不同数据类型</p>
+<p><strong>思路</strong>：需要两个字段，一个存储数据类型，一个存储数据</p>
+<p><strong>实现</strong>：通过union和struct，之间嵌套、有机结合形成lua_TValue，来统一表示所有数据类型。可进行GC（垃圾回收）操作的数据有CommonHeader宏定义的成员</p>
+<p>注：number不是可GC类型</p>
+<p>lua通用数据结构组织（如图）</p>
+<p><img src="/img/commonTValue.webp" alt=""></p>
+<hr>
+<h3 id="字符串-string"><strong>字符串-string</strong></h3>
+<p><strong>目标</strong>：尽可能提高效率存储字符串</p>
+<p><strong>思路</strong>：存储字符串的变量是对该字符串的引用，所以需要两个字段，一个存储字符串的长度，一个存储字符串数据的引用（散列值）</p>
+<p><strong>实现</strong>：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"> <span style="color:#66d9ef">typedef</span> uinion TString{   
+     L_Umaxalign dumy;     <span style="color:#75715e">//对齐变量 （节省空间）
+</span><span style="color:#75715e"></span>     <span style="color:#66d9ef">struct</span>{
+         commonHeader;     <span style="color:#75715e">//GC宏
+</span><span style="color:#75715e"></span>         lu_byte reserved; <span style="color:#75715e">//表示是不是保留字符串
+</span><span style="color:#75715e"></span>         <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> hash;<span style="color:#75715e">//散列值
+</span><span style="color:#75715e"></span>         size_t len;       <span style="color:#75715e">//字符串长度
+</span><span style="color:#75715e"></span>     }tsu;
+ }TString;
+</code></pre></div><p><strong>特点</strong>：</p>
+<p>“内化”：字符串变量是对字符串的引用，当创建字符串前先检查全局数据区有无该串，无则创建，有则引用。（ps：用时间换空间，同时lua的查找算法效率也很高）</p>
+<p>“散列值”：加快对字符串数据比较和查找</p>
+<p><strong>存储</strong>：</p>
+<p>所有字符串存储在全局数据区，该区为全局变量global_state的str成员,str本质为散列数组</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> stringtable{
+    GCObject <span style="color:#f92672">**</span>hash;
+    lu_int32 nuse;  <span style="color:#75715e">//元素值
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int</span> size;
+}stringtable;
+</code></pre></div><p>创建字符串Tstring，首先根据散列算法算出散列值，为str的索引值，若位置上已有值，则用链表串联起来</p>
+<p>rehash（重新哈希）:当散列桶中数量非常大，算法效率急速下降，所以需要重新分配散列桶数量，来降低每个桶中的数量（luaS_resize()）</p>
+<p><strong>lua_Tip</strong>:</p>
+<p>尽量少用<strong>大量循环</strong>来连接字符串，因为每次连接都会产生新串，费时又费空间。而用表来做字符串缓冲区（先用表循环存储，再用table.concat连接），会节省空间,提高效率。</p>
+<hr>
+<h3 id="表-table"><strong>表-table</strong></h3>
+<p><strong>目标</strong>：存储所有数据类型，并对使用者透明</p>
+<p><strong>思路</strong>：两个部分，分数组和散列表</p>
+<p><strong>实现</strong>：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c">type <span style="color:#66d9ef">struct</span> Table{
+    CommonHeader;
+    lu_byte flags;          <span style="color:#75715e">//提供元方法标志
+</span><span style="color:#75715e"></span>    lu_byte lsizenode;      <span style="color:#75715e">//以2为第的散列桶大小
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">struct</span> Table <span style="color:#f92672">*</span>metable;  <span style="color:#75715e">//远比闹
+</span><span style="color:#75715e"></span>    TValue <span style="color:#f92672">*</span>array;          <span style="color:#75715e">//数组部分指针
+</span><span style="color:#75715e"></span>    Node <span style="color:#f92672">*</span>node;             <span style="color:#75715e">//散列桶起始位置
+</span><span style="color:#75715e"></span>    Node <span style="color:#f92672">*</span>lastfree;         <span style="color:#75715e">//散列桶最后位置
+</span><span style="color:#75715e"></span>    GCObject <span style="color:#f92672">*</span>gclist;
+    <span style="color:#66d9ef">int</span> sizearray;          <span style="color:#75715e">//数组部分大小
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p><strong>重要操作</strong></p>
+<p>1、查找：</p>
+<p>if key为正整数&amp;&amp;key&lt;=数组大小，则在数组部分查找
+else 在散列部分查找，计算key的散列值，得到散列桶位置，遍历桶中元素，查找key</p>
+<p>2、新增：（重新分配数组部分和散列部分）</p>
+<p>eg.表中新增一个整形数，既可以写在数组，又可以写在散列</p>
+<ol>
+<li>先在散列部分进行查找</li>
+<li>找不到，重新散列，进行正整数统计，分配到2^i^ ~ 2^i-1^ 区间，判断总数&gt;索引数的50%</li>
+<li>条件为真写入数组，为假写入散列</li>
+</ol>
+<p>3、迭代</p>
+<p>表的各种本地迭代，遇nil则停止遍历</p>
+<p><strong>lua_Tip</strong>:</p>
+<p>1.不混用数组和散列部分，不在表中间存放nil，这些会对#取长度不稳定。</p>
+<p>2.表用预填，可以减少重新分配的过程。</p>
+<p><strong>拓展-元表</strong></p>
+<p>目的：为了关联两张表，解决无法操作两张表的问题。含元方法，可重定义运算符。</p>
+<p>_index元方法：可为表或函数，连接两张表</p>
+<p>_newindex元方法：对表新key赋值时，会去找该元方法。对已有key赋值，则直接赋值</p>
+<p>查找表元素的顺序：</p>
+<ol>
+<li>
+<p>先在表找，有则返回，无责继续</p>
+</li>
+<li>
+<p>判断是否有元表，无则返回，有则继续在元表找</p>
+</li>
+<li>
+<p>判断_index为表，则重复123，为函数，则返回返回值</p>
+</li>
+</ol>
+<hr>
+<h3 id="lua虚拟机"><strong>lua虚拟机</strong></h3>
+<p><strong>脚本语言执行过程</strong></p>
+<p>脚本语言 -&gt; 字节码(每个脚本自定义的)  -&gt; 执行字节码</p>
+<p><strong>lua虚拟机</strong></p>
+<p>虚拟机一般有两种，一种基于栈，一种基于寄存器，而lua是基于寄存器的虚拟机，&ldquo;寄存器&quot;是个概念，实际上是栈中一块连续区域</p>
+<p>优点:省了出栈入栈等操作</p>
+<p>缺点：要找操作数的存储位置</p>
+<p><strong>虚拟机</strong></p>
+<p>lua虚拟机扮演cpu和内存，主要工作是</p>
+<ol>
+<li>将脚本翻译成虚拟机可执行的字节码</li>
+<li>执行指令</li>
+<li>获取下一条指令</li>
+<li>准备栈</li>
+</ol>
+<p><strong>拓展-闭包、userdata</strong></p>
+<p>闭包就是一个含调用内部函数加上外部局部变量（UpValue）的函数产生一个实例函数</p>
+<p>userdata本身是指针，指向一块受lua管理的内存块，可以存放任何东西，用来表示c定义的数据</p>
+<hr>
+<h3 id="gc算法"><strong>GC算法</strong></h3>
+<p><strong>原因</strong>：lua内存管理的方法（内存管理一般有两种方法，一个是引用计数，一个是垃圾回收，引用计数会造成循环引用，浪费内存）</p>
+<p><strong>目标</strong>：找出没有引用的的对象，清理</p>
+<p><strong>思路</strong>：遍历所有对象，看那些对象没被引用，无则回收对象</p>
+<p><strong>方法</strong>：</p>
+<p>lua5.0 &ndash; 双色标记清除算法（会暂停的问题）</p>
+<p>lua5.1 &ndash; 三色增量标记清除算法（解决暂停问题，变成分段式）</p>
+<p><strong>三色增量标记清除算法</strong></p>
+<p>所谓三色就是白灰黑</p>
+<p>白色：待访问、未被GC标记状态</p>
+<p>灰色：待扫描、已被GC标记状态</p>
+<p>黑色：已扫描、已被GC标记状态</p>
+<p>双白：解决才创建就被回收的问题，第n次使用一种白，第n+1次使用第二种白</p>
+<p>过程：</p>
+<ol>
+<li>
+<p>创建阶段：置为白色</p>
+</li>
+<li>
+<p>初始化阶段：遍历root节点，被引用的对象置为灰色，加入gray表</p>
+</li>
+<li>
+<p>标记阶段：遍历灰色节点关联节点，若为白色则变灰，若为灰色则变黑</p>
+</li>
+<li>
+<p>回收阶段：白色次代回收</p>
+</li>
+</ol>
+<hr>
+<h3 id="环境与模块"><strong>环境与模块</strong></h3>
+<p><strong>热更新</strong></p>
+<p>解释：在游戏内更新，游戏启动时去下载需要更新的资源
+（区别于：重新上新商店包，需要审核浪费时间，需要重新下载浪费流量）</p>
+<p>原因：lua是解释型语言，虚拟机会一起打包到游戏，所以更新代码可以直接在游戏中跑</p>
+<p>目标：重新加载某个模块，让虚拟机认为它之前没加载过</p>
+<p>方案：tolua、xlua</p>
+<p>性能差不多，语法各异</p>
+<hr>
+<h3 id="异常处理"><strong>异常处理</strong></h3>
+<p>error：抛出错误</p>
+<p>assert：error+条件处理</p>
+<p>xcall：pcall类似，但需额外设置消息管理器</p>
+<p>pcall：捕捉错误，不会抛出错误，程序不会被终止</p>
+<hr>
+<h3 id="携程"><strong>携程</strong></h3>
+<p>定义：进程子任务</p>
+<p>特点：</p>
+<ol>
+<li>携程可以保留自己运行时的状态数据</li>
+<li>可以自己中断和返回中断</li>
+<li>受程序员控制</li>
+</ol>
+<hr>
+<h3 id="luajit"><strong>luajit</strong></h3>
+<p>luajit是lua的高效虚拟机。是lua的高效版</p>
+<p>工作内容：</p>
+<ul>
+<li>
+<p>控制lua生成luajit自己定义的字节码</p>
+</li>
+<li>
+<p>将字节码翻译成机器码</p>
+</li>
+<li>
+<p>对于频繁用的机器码存起来，方便下次调用，对于只执行一次的机器码，则继续逐条执行</p>
+</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>ios不可用jit功能</li>
+</ul>
+<hr>
+<h3 id="后记"><strong>后记</strong></h3>
+<p>码了三天笔记终于写完，放首-玛卡瑞娜-听听吧。</p>
+
                 </section>
             </article>
 
