@@ -37,16 +37,5 @@ lua_Tip:
 type struct Table{ CommonHeader; lu_byte flags; //提供元方法标志  lu_byte lsizenode; //以2为第的散列桶大小  struct Table *metable; //远比闹  TValue *array; //数组部分指针  Node *node; //散列桶起始位置  Node *lastfree; //散列桶最后位置  GCObject *gclist; int sizearray; //数组部分大小 } 重要操作</description>
     </item>
     
-    <item>
-      <title>(Hu)go Template Primer</title>
-      <link>https://01-sun.github.io/post/goisforlovers/</link>
-      <pubDate>Wed, 02 Apr 2014 00:00:00 +0000</pubDate>
-      
-      <guid>https://01-sun.github.io/post/goisforlovers/</guid>
-      <description>&lt;p&gt;Hugo uses the excellent &lt;a href=&#34;http://golang.org/&#34;&gt;go&lt;/a&gt; &lt;a href=&#34;http://golang.org/pkg/html/template/&#34;&gt;html/template&lt;/a&gt; library for
-its template engine. It is an extremely lightweight engine that provides a very
-small amount of logic.&lt;/p&gt;</description>
-    </item>
-    
   </channel>
 </rss>
