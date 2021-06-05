@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>UE4-Tutorial on LITOU&#39;s BLOG</title>
+    <link>https://01-sun.github.io/tags/ue4-tutorial/</link>
+    <description>Recent content in UE4-Tutorial on LITOU&#39;s BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sun, 06 Jun 2021 01:50:11 +0800</lastBuildDate><atom:link href="https://01-sun.github.io/tags/ue4-tutorial/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>UE4动画制作-教程</title>
+      <link>https://01-sun.github.io/post/ue4-%E8%A7%92%E8%89%B2%E5%8A%A8%E7%94%BB%E5%AE%9E%E7%8E%B0/</link>
+      <pubDate>Sun, 06 Jun 2021 01:50:11 +0800</pubDate>
+      
+      <guid>https://01-sun.github.io/post/ue4-%E8%A7%92%E8%89%B2%E5%8A%A8%E7%94%BB%E5%AE%9E%E7%8E%B0/</guid>
+      <description>游戏动画
+UE4的角色动画实现
+游戏动画   what：动作过程。
+  why:实现游戏角色的走、跑、游泳、攻击等行为。
+  how：帧动画、骨骼动画等。
+  主要动画分类： 帧动画：
+  What：帧动画的每一帧都是角色特定姿势的一个快照，帧动画的每一帧都是角色特定姿势的一个快照，动画的流畅性和平滑效果都取决于帧数的多少。常见于cocos2dx引擎
+  Advantage：1、适合需要复杂细腻的效果。2、可添加事件
+  Diadvantage：1、耗内存。2、不灵活
+  骨骼动画：
+  what：而骨骼动画则是把角色的各部分身体部件图片绑定到一根根互相作用连接的“骨头”上，通过控制这些骨骼的位置、旋转方向和放大缩小而生成的动画。
+  Advantage：1、内存少 2、灵活（混合动画）
+  Diadvantage：1、更高的处理器。
+   UE4的角色动画实现-骨骼动画 几个概念 ：   骨骼/骨架(skelton)：骨骼动画的基础，能挂载动画，用于生成动画序列
+  动画序列（animation sequence）：某个骨骼动画
+  混合空间（Blend Space）：两个骨骼动画之间创建过渡动画
+  动画蓝图（Animation Blueprint）:添加运行动画的条件，实现逻辑动画
+  根骨骼位移（Root Motion）:解决位移和动画不一致问题，简单动作可以不用 详细
+  流程 ：   获取3d模型：</description>
+    </item>
+    
+  </channel>
+</rss>
