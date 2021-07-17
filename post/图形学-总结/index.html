@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<meta name="author" content="litou">
+		<meta name="description" content="Site Description">
+		<meta name="generator" content="Hugo 0.81.0" />
+		<title>图形学-总结 &middot; LITOU&#39;s BLOG</title>
+		<link rel="shortcut icon" href="https://01-sun.github.io/images/favicon.ico">
+		<link rel="stylesheet" href="https://01-sun.github.io/css/style.css">
+		<link rel="stylesheet" href="https://01-sun.github.io/css/highlight.css">
+
+		
+		<link rel="stylesheet" href="https://01-sun.github.io/css/font-awesome.min.css">
+		
+
+		
+
+		
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://01-sun.github.io/'> <span class="arrow">←</span>Home</a>
+	
+	<a href='https://01-sun.github.io/posts'>Archive</a>
+	<a href='https://01-sun.github.io/tags'>Tags</a>
+	<a href='https://01-sun.github.io/about'>About</a>
+
+	
+
+	
+</nav>
+
+
+        <section id="wrapper" class="post">
+            <article>
+                <header>
+                    <h1>
+                        图形学-总结
+                    </h1>
+                    <h2 class="headline">
+                    Jun 28, 2021 10:40
+                    · 76 words
+                    · 1 minute read
+                      <span class="tags">
+                      
+                      
+                          
+                              <a href="https://01-sun.github.io/tags/%E9%9D%A2%E7%BB%8F">面经</a>
+                          
+                              <a href="https://01-sun.github.io/tags/%E6%80%BB%E7%BB%93">总结</a>
+                          
+                      
+                      
+                      </span>
+                    </h2>
+                </header>
+                
+                <section id="post-body">
+                    <p><a href="#%E7%9F%A9%E9%98%B5%E6%B1%82%E9%80%86">矩阵求逆</a></p>
+<p>[矩阵求转置]](#矩阵求转置)</p>
+<p><a href="#%E5%86%AF%E6%B0%8F%E5%85%89%E7%85%A7%E6%A8%A1%E5%9E%8B">冯氏光照模型</a></p>
+<p>[深度测试和模板测试]](#深度测试和模板测试)</p>
+<p><a href="#%E5%89%94%E9%99%A4%E4%B8%89%E5%89%91%E5%AE%A2">剔除三剑客</a></p>
+<p>[骨骼动画原理]](#骨骼动画原理)</p>
+<p><a href="#%E5%88%A4%E6%96%AD%E7%82%B9%E5%9C%A8%E5%A4%9A%E8%BE%B9%E5%BD%A2%E5%86%85">判断点在多边形内</a></p>
+<p>[判断凹多边形和凸多边形]](#判断凹多边形和凸多边形)</p>
+<hr>
+<h2 id="矩阵求逆">矩阵求逆</h2>
+<p>手算:
+* 待定系数法</p>
+<pre><code>* 伴随矩阵法  =A* 1/|A|
+
+* 初等变换法 A A* = E
+</code></pre>
+<p>机算:</p>
+<pre><code>* lu分解法
+
+* GJ消去法
+</code></pre>
+<hr>
+<h2 id="矩阵求转置">矩阵求转置</h2>
+<ul>
+<li>
+<p>三元组法</p>
+</li>
+<li>
+<p>压缩矩阵快速转置法</p>
+</li>
+</ul>
+<hr>
+<h2 id="冯氏光照模型">冯氏光照模型</h2>
+<ul>
+<li>
+<p>Ambient(环境光): 由环境因子决定</p>
+</li>
+<li>
+<p>Diffuse(反射光): 由法向量和光照方向决定</p>
+</li>
+<li>
+<p>Specular(高光): 由反射向量和视向量决定</p>
+</li>
+</ul>
+<hr>
+<h2 id="深度测试和模板测试">深度测试和模板测试</h2>
+<p>深度测试: 计算当前像素是否被下一像素覆盖是的过程。 z-buffer只用正确渲染，而不用于性能优化</p>
+<p>模板测试: 用该像素的模板值和参考模板值对比，符合留下，不符合条件丢弃。</p>
+<hr>
+<h2 id="剔除三剑客">剔除三剑客</h2>
+<h3 id="视锥体剔除">视锥体剔除</h3>
+<p>How:</p>
+<pre><code>* 取包围盒的对角线点是否在视锥体内 --&gt; 点在视锥体内 --&gt; 点在面前面
+
+* 点在远近剪裁面内
+</code></pre>
+<h3 id="背面剔除">背面剔除</h3>
+<p>How:
+面法线和视向量夹角，大于90°是背面，反之正面</p>
+<h3 id="遮挡剔除">遮挡剔除</h3>
+<p>What: 一个物体被另一个物体遮挡，并且不再摄像机的可视范围内</p>
+<p>UE4-PVS  粒子</p>
+<hr>
+<h2 id="骨骼动画原理">骨骼动画原理</h2>
+<p>What: 计算某一状态下网格顶点的位置。一个顶点可以绑定一个或多个骨骼，播放动画时，顶点随
+关节一起运动，顶点的最终位置为骨骼的加权平均和。</p>
+<hr>
+<h2 id="判断点在多边形内">判断点在多边形内</h2>
+<ul>
+<li>
+<p>射线法: 顶点数为奇数说明点在里面</p>
+</li>
+<li>
+<p>叉积法</p>
+</li>
+<li>
+<p>面积法角度法 总=分之和</p>
+</li>
+</ul>
+<hr>
+<h2 id="判断凹多边形和凸多边形">判断凹多边形和凸多边形</h2>
+<p>凹多边形：至少一个角大于180°</p>
+<p>凸多边形:由钝角或锐角组成</p>
+<ul>
+<li>方法:检测凹点，顺时针叉乘</li>
+</ul>
+
+                </section>
+            </article>
+
+            
+
+            
+
+            
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://github.com/01-sun">
+        <i class="fa fa-github-square"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+       © Copyright 2021 <i class="fa fa-heart" aria-hidden="true"></i> litou
+    
+    </p>
+    <p class="small">
+        Powered by <a href="http://www.gohugo.io/">Hugo</a> Theme By <a href="https://github.com/nodejh/hugo-theme-cactus-plus">nodejh</a>
+    </p>
+</footer>
+
+        </section>
+
+        <script src="https://01-sun.github.io/js/jquery-3.3.1.min.js"></script>
+<script src="https://01-sun.github.io/js/main.js"></script>
+<script src="https://01-sun.github.io/js/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+    </body>
+</html>

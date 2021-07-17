@@ -6,7 +6,167 @@
     <description>Recent content on LITOU&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 06 Jun 2021 01:50:11 +0800</lastBuildDate><atom:link href="https://01-sun.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 28 Jun 2021 11:20:11 +0800</lastBuildDate><atom:link href="https://01-sun.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>UE4-总结</title>
+      <link>https://01-sun.github.io/post/ue4-%E6%80%BB%E7%BB%93/</link>
+      <pubDate>Mon, 28 Jun 2021 11:20:11 +0800</pubDate>
+      
+      <guid>https://01-sun.github.io/post/ue4-%E6%80%BB%E7%BB%93/</guid>
+      <description>GamePlay框架
+反射系统
+网络模块
+UI模块
+技能模块
+蒙太奇
+C++蓝图互调
+没有UFUNCTION影响
+ActorComponent和SceneComponent
+setVisible
+命名规范
+ 网络模块 Actor Replication 设置actor:replicate = true
+让actor所有者得到同步: netrelevant
+Property Replication 只有将属性标记Replicated，才会复制
+两种同步属性方式:
+  服务器变化，同步客户端
+  属性发生变化，调用ONRep_函数()
+  function call replication PRCs 是一种将函数调用和执行分开的方式。
+ UI模块   Slate:C++写
+  UMG: 图形界面
+   技能模块 获得技能 拥有者继承UAbilitySystemComponent类 做成单例去定义获取技能GetAbility()
+技能继承GamePlayAbility类 * 释放技能效果 EventActiveAbility() * 技能结束 EventOnEndAbility()
+施放技能 调用TryActiveAbilityByClass()调用效果commitAbility commitAbilityCoolDown结束技能 EndAbility 技能消耗CD 消耗CD继承AbilityEffect类
+CD的类duration policy选择hasduration,当技能释放会给技能槽一个独占Tag，只有等技能结束Tag消失，才能再次复制Tag</description>
+    </item>
+    
+    <item>
+      <title>图形学-总结</title>
+      <link>https://01-sun.github.io/post/%E5%9B%BE%E5%BD%A2%E5%AD%A6-%E6%80%BB%E7%BB%93/</link>
+      <pubDate>Mon, 28 Jun 2021 10:40:11 +0800</pubDate>
+      
+      <guid>https://01-sun.github.io/post/%E5%9B%BE%E5%BD%A2%E5%AD%A6-%E6%80%BB%E7%BB%93/</guid>
+      <description>矩阵求逆
+[矩阵求转置]](#矩阵求转置)
+冯氏光照模型
+[深度测试和模板测试]](#深度测试和模板测试)
+剔除三剑客
+[骨骼动画原理]](#骨骼动画原理)
+判断点在多边形内
+[判断凹多边形和凸多边形]](#判断凹多边形和凸多边形)
+ 矩阵求逆 手算: * 待定系数法
+* 伴随矩阵法 =A* 1/|A|* 初等变换法 A A* = E 机算:
+* lu分解法* GJ消去法  矩阵求转置   三元组法
+  压缩矩阵快速转置法
+   冯氏光照模型   Ambient(环境光): 由环境因子决定
+  Diffuse(反射光): 由法向量和光照方向决定
+  Specular(高光): 由反射向量和视向量决定
+   深度测试和模板测试 深度测试: 计算当前像素是否被下一像素覆盖是的过程。 z-buffer只用正确渲染，而不用于性能优化
+模板测试: 用该像素的模板值和参考模板值对比，符合留下，不符合条件丢弃。
+ 剔除三剑客 视锥体剔除 How:
+* 取包围盒的对角线点是否在视锥体内 --&amp;gt; 点在视锥体内 --&amp;gt; 点在面前面* 点在远近剪裁面内 背面剔除 How: 面法线和视向量夹角，大于90°是背面，反之正面</description>
+    </item>
+    
+    <item>
+      <title>C&#43;&#43;-总结</title>
+      <link>https://01-sun.github.io/post/c&#43;&#43;-%E6%80%BB%E7%BB%93/</link>
+      <pubDate>Mon, 28 Jun 2021 09:00:11 +0800</pubDate>
+      
+      <guid>https://01-sun.github.io/post/c&#43;&#43;-%E6%80%BB%E7%BB%93/</guid>
+      <description>抽象类和接口
+单例模式
+大小端
+超前引用
+const用法
+lambda
+ 抽象类和接口 抽象类:含纯虚函数
+接口: 都是纯虚函数
+纯虚函数: 父类定义，由子类实现
+ 单例模式 Why:避免频繁使用的类被频繁创建释放
+What:就是自行创建唯一实例，并向整个系统提供这个实例
+写法:
+class A{ public: static A *instance; static A* getInstance(){ if(instance==nullptr) instance = new A(); returhn instance; } private: A(); A(const A&amp;amp;); A&amp;amp; oprator=(const A&amp;amp;); } 注意：单例应该只用来保存全局的状态，并且不能和任何作用域绑定。如果这些状态的作用域比一个完整的应用程序的生命周期要短，那么这个状态就不应该使用单例来管理。
+ 大小端 小端:低地址低字节，使用内存运算
+大端:低地址高字节，适用于数据运算，快速判断数据正负大小
+ 超前引用 What:类A和类B需要彼此互相引用，这样必然有一个类A会先被定义，而另外一个类B后被定义，这样在先被定义的类引用后被定义的类的时候，就导致了所谓的超前引用。
+How:
+  用之前先声明class B
+  使用全局变量 extern
+   const用法 目的:常量不让改变
+const char str[] = &amp;ldquo;1234&amp;rdquo;; //const修饰str的值，不允许值被修改</description>
+    </item>
+    
+    <item>
+      <title>cocos2dx-总结</title>
+      <link>https://01-sun.github.io/post/cocos2dx-%E6%80%BB%E7%BB%93/</link>
+      <pubDate>Mon, 28 Jun 2021 09:00:11 +0800</pubDate>
+      
+      <guid>https://01-sun.github.io/post/cocos2dx-%E6%80%BB%E7%BB%93/</guid>
+      <description>渲染流程
+内存管理
+主循环工作
+定时器
+ 渲染流程 directoe.mainloop()进入主循环 &amp;ndash;&amp;gt; director.drawScene() &amp;ndash;&amp;gt; Scene.render() &amp;ndash;&amp;gt;Node.visit() &amp;ndash;&amp;gt;sprite.draw()
+&amp;ndash;&amp;gt;addcommand到渲染队列 &amp;ndash;&amp;gt;进行合批 &amp;ndash;&amp;gt;调用渲染API进行渲染
+ 内存管理 方法:引用计数
+手动:
+* 初始值为0,create/retain： +1, release:-1. 自动:(自动回收池) * 使用create()会调用autorelease()会加入到自动回收池，初始计数为1。
+* 被引用retain： +1, 被释放release:-1。* 每帧结束后会调用release()进行-1，为零则会被清除。  主循环工作 1.处理输入输出
+2.渲染
+3.处理定时器
+ 定时器   update 每帧调用
+  schedule 自定义时间调用
+  </description>
+    </item>
+    
+    <item>
+      <title>lua-总结</title>
+      <link>https://01-sun.github.io/post/lua-%E6%80%BB%E7%BB%93/</link>
+      <pubDate>Mon, 28 Jun 2021 08:00:11 +0800</pubDate>
+      
+      <guid>https://01-sun.github.io/post/lua-%E6%80%BB%E7%BB%93/</guid>
+      <description>检测内存泄漏
+_newindex
+协程
+ 检测内存泄漏   快照:扫描间隔两端时间的内存快照，一直存在可能是内存泄漏
+  弱表:建立一张全局的弱表，把资源放进去然后运行游戏后进行GC，若有对象没被施放，可能存在内存泄露
+   _newindex 目的:防止被乱插值，表受污染
+What:用于更新。
+* 当给表缺少索引的键赋值,若存在_newindex,则赋值失败。* 如果_newindex是表，赋值会在该表中  协程 * 协同程序却需要彼此协作的运行* 一个时间只有一个携程在运行* 并且必须显示挂起。resume运行create操作，遇到yeild挂起等待下一个resume </description>
+    </item>
+    
+    <item>
+      <title>游戏客户端-总结</title>
+      <link>https://01-sun.github.io/post/%E6%B8%B8%E6%88%8F%E5%AE%A2%E6%88%B7%E7%AB%AF-%E6%80%BB%E7%BB%93/</link>
+      <pubDate>Sun, 27 Jun 2021 01:50:11 +0800</pubDate>
+      
+      <guid>https://01-sun.github.io/post/%E6%B8%B8%E6%88%8F%E5%AE%A2%E6%88%B7%E7%AB%AF-%E6%80%BB%E7%BB%93/</guid>
+      <description>UI优化
+客户端优化
+性能测试工具
+移动端纹理压缩格式
+网络同步方案
+常见算法
+名词解释
+ UI优化 目的：加快UI运行速度
+  动静分离
+  渲染层和逻辑层分离
+  合并图集
+  How：同一层ui的散图可合并
+  Why：来自同一图集使用一次drawcall；节省内存(多于白边，多余图片信息)
+    减少UI层次： 不同层不同drawcall
+   客户端优化 目的：减少手机发热
+  减少GPU渲染：
+  减少多余点面，可用低模+法线贴图(就是将复杂物体的凹凸信息记录到图片的rgb通道里面)
+  不用实时光照，使用烘焙光照
+  不使用透明材质
+  使用HLOD，MipMAp
+  使用2的幂次方尺寸的贴图(方便光栅化采样,驱动优化时会把不是2的幂次方的图转成2的幂次方的图,浪费性能)
+    减少CPU计算：
+  合批
+  代码优化
+     性能测试工具 目的：检测游戏性能</description>
+    </item>
+    
     <item>
       <title>UE4动画制作-教程</title>
       <link>https://01-sun.github.io/post/ue4-%E8%A7%92%E8%89%B2%E5%8A%A8%E7%94%BB%E5%AE%9E%E7%8E%B0/</link>

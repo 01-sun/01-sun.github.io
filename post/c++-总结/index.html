@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<meta name="author" content="litou">
+		<meta name="description" content="Site Description">
+		<meta name="generator" content="Hugo 0.81.0" />
+		<title>C&#43;&#43;-总结 &middot; LITOU&#39;s BLOG</title>
+		<link rel="shortcut icon" href="https://01-sun.github.io/images/favicon.ico">
+		<link rel="stylesheet" href="https://01-sun.github.io/css/style.css">
+		<link rel="stylesheet" href="https://01-sun.github.io/css/highlight.css">
+
+		
+		<link rel="stylesheet" href="https://01-sun.github.io/css/font-awesome.min.css">
+		
+
+		
+
+		
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://01-sun.github.io/'> <span class="arrow">←</span>Home</a>
+	
+	<a href='https://01-sun.github.io/posts'>Archive</a>
+	<a href='https://01-sun.github.io/tags'>Tags</a>
+	<a href='https://01-sun.github.io/about'>About</a>
+
+	
+
+	
+</nav>
+
+
+        <section id="wrapper" class="post">
+            <article>
+                <header>
+                    <h1>
+                        C&#43;&#43;-总结
+                    </h1>
+                    <h2 class="headline">
+                    Jun 28, 2021 09:00
+                    · 83 words
+                    · 1 minute read
+                      <span class="tags">
+                      
+                      
+                          
+                              <a href="https://01-sun.github.io/tags/%E9%9D%A2%E7%BB%8F">面经</a>
+                          
+                              <a href="https://01-sun.github.io/tags/%E6%80%BB%E7%BB%93">总结</a>
+                          
+                      
+                      
+                      </span>
+                    </h2>
+                </header>
+                
+                <section id="post-body">
+                    <p><a href="#%E6%8A%BD%E8%B1%A1%E7%B1%BB%E5%92%8C%E6%8E%A5%E5%8F%A3">抽象类和接口</a></p>
+<p><a href="#%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F">单例模式</a></p>
+<p><a href="#%E5%A4%A7%E5%B0%8F%E7%AB%AF">大小端</a></p>
+<p><a href="#%E8%B6%85%E5%89%8D%E5%BC%95%E7%94%A8">超前引用</a></p>
+<p><a href="#const%E7%94%A8%E6%B3%95">const用法</a></p>
+<p><a href="#lambda">lambda</a></p>
+<hr>
+<h2 id="抽象类和接口">抽象类和接口</h2>
+<p>抽象类:含纯虚函数</p>
+<p>接口: 都是纯虚函数</p>
+<p>纯虚函数: 父类定义，由子类实现</p>
+<hr>
+<h2 id="单例模式">单例模式</h2>
+<p>Why:避免频繁使用的类被频繁创建释放</p>
+<p>What:就是自行创建唯一实例，并向整个系统提供这个实例</p>
+<p>写法:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++">
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">A</span>{
+    <span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+    <span style="color:#66d9ef">static</span> A <span style="color:#f92672">*</span>instance;
+    <span style="color:#66d9ef">static</span> A<span style="color:#f92672">*</span> <span style="color:#a6e22e">getInstance</span>(){
+        <span style="color:#66d9ef">if</span>(instance<span style="color:#f92672">==</span><span style="color:#66d9ef">nullptr</span>)  instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> A();
+        returhn instance;
+    }
+    <span style="color:#66d9ef">private</span><span style="color:#f92672">:</span> 
+        A();
+        A(<span style="color:#66d9ef">const</span> A<span style="color:#f92672">&amp;</span>);
+        A<span style="color:#f92672">&amp;</span> oprator<span style="color:#f92672">=</span>(<span style="color:#66d9ef">const</span> A<span style="color:#f92672">&amp;</span>);
+
+}
+
+</code></pre></div><p><strong>注意</strong>：单例应该只用来保存全局的状态，并且不能和任何作用域绑定。如果这些状态的作用域比一个完整的应用程序的生命周期要短，那么这个状态就不应该使用单例来管理。</p>
+<hr>
+<h2 id="大小端">大小端</h2>
+<p>小端:低地址低字节，使用内存运算</p>
+<p>大端:低地址高字节，适用于数据运算，快速判断数据正负大小</p>
+<hr>
+<h2 id="超前引用">超前引用</h2>
+<p>What:类A和类B需要彼此互相引用，这样必然有一个类A会先被定义，而另外一个类B后被定义，这样在先被定义的类引用后被定义的类的时候，就导致了所谓的超前引用。</p>
+<p>How:</p>
+<ul>
+<li>
+<p>用之前先声明class B</p>
+</li>
+<li>
+<p>使用全局变量 extern</p>
+</li>
+</ul>
+<hr>
+<h2 id="const用法">const用法</h2>
+<p>目的:常量不让改变</p>
+<p>const char str[] = &ldquo;1234&rdquo;;  //const修饰str的值，不允许值被修改</p>
+<p>const char* str == &ldquo;1234&rdquo;:  //同上</p>
+<p>char* const str= &ldquo;1234&rdquo;:    //const修饰指针,指针不能指向其他</p>
+<p>const存储位置：</p>
+<ul>
+<li>
+<p>修饰局部变量，存储在<strong>栈</strong>。</p>
+</li>
+<li>
+<p>修饰字面值或全局变量，存储在<strong>全局静态存储区</strong>。</p>
+</li>
+</ul>
+<p><strong>注意</strong></p>
+<p>const修饰成员函数，实际上修饰this指针，表明在该成员函数中不能对类的任何成员进行修改。</p>
+<p>并且不能与static同时使用，静态方法不依赖类的实例</p>
+<hr>
+<h2 id="lambda">lambda</h2>
+<p>目的：匿名函数只要在调用时才创建空间,调用结束立刻释放,节省空间。而普通函数定义时占内存</p>
+<p>What: 没有名字的函数 <a href="">type</a>{}格式，type:=值类型  &amp;引用类型</p>
+
+                </section>
+            </article>
+
+            
+
+            
+
+            
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://github.com/01-sun">
+        <i class="fa fa-github-square"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+       © Copyright 2021 <i class="fa fa-heart" aria-hidden="true"></i> litou
+    
+    </p>
+    <p class="small">
+        Powered by <a href="http://www.gohugo.io/">Hugo</a> Theme By <a href="https://github.com/nodejh/hugo-theme-cactus-plus">nodejh</a>
+    </p>
+</footer>
+
+        </section>
+
+        <script src="https://01-sun.github.io/js/jquery-3.3.1.min.js"></script>
+<script src="https://01-sun.github.io/js/main.js"></script>
+<script src="https://01-sun.github.io/js/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+    </body>
+</html>

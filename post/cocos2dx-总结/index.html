@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<meta name="author" content="litou">
+		<meta name="description" content="Site Description">
+		<meta name="generator" content="Hugo 0.81.0" />
+		<title>cocos2dx-总结 &middot; LITOU&#39;s BLOG</title>
+		<link rel="shortcut icon" href="https://01-sun.github.io/images/favicon.ico">
+		<link rel="stylesheet" href="https://01-sun.github.io/css/style.css">
+		<link rel="stylesheet" href="https://01-sun.github.io/css/highlight.css">
+
+		
+		<link rel="stylesheet" href="https://01-sun.github.io/css/font-awesome.min.css">
+		
+
+		
+
+		
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://01-sun.github.io/'> <span class="arrow">←</span>Home</a>
+	
+	<a href='https://01-sun.github.io/posts'>Archive</a>
+	<a href='https://01-sun.github.io/tags'>Tags</a>
+	<a href='https://01-sun.github.io/about'>About</a>
+
+	
+
+	
+</nav>
+
+
+        <section id="wrapper" class="post">
+            <article>
+                <header>
+                    <h1>
+                        cocos2dx-总结
+                    </h1>
+                    <h2 class="headline">
+                    Jun 28, 2021 09:00
+                    · 40 words
+                    · 1 minute read
+                      <span class="tags">
+                      
+                      
+                          
+                              <a href="https://01-sun.github.io/tags/%E9%9D%A2%E7%BB%8F">面经</a>
+                          
+                              <a href="https://01-sun.github.io/tags/%E6%80%BB%E7%BB%93">总结</a>
+                          
+                      
+                      
+                      </span>
+                    </h2>
+                </header>
+                
+                <section id="post-body">
+                    <p><a href="#%E6%B8%B2%E6%9F%93%E6%B5%81%E7%A8%8B">渲染流程</a></p>
+<p><a href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86">内存管理</a></p>
+<p><a href="#%E4%B8%BB%E5%BE%AA%E7%8E%AF%E5%B7%A5%E4%BD%9C">主循环工作</a></p>
+<p><a href="#%E5%AE%9A%E6%97%B6%E5%99%A8">定时器</a></p>
+<hr>
+<h2 id="渲染流程">渲染流程</h2>
+<p>directoe.mainloop()进入主循环  &ndash;&gt;  director.drawScene()   &ndash;&gt; Scene.render()  &ndash;&gt;Node.visit()   &ndash;&gt;sprite.draw()<br>
+&ndash;&gt;addcommand到渲染队列   &ndash;&gt;进行合批  &ndash;&gt;调用渲染API进行渲染</p>
+<hr>
+<h2 id="内存管理">内存管理</h2>
+<p>方法:引用计数</p>
+<p>手动:</p>
+<pre><code>* 初始值为0,create/retain： +1, release:-1.
+</code></pre>
+<p>自动:(自动回收池)
+* 使用create()会调用autorelease()会加入到自动回收池，初始计数为1。</p>
+<pre><code>* 被引用retain： +1, 被释放release:-1。
+
+* 每帧结束后会调用release()进行-1，为零则会被清除。
+</code></pre>
+<hr>
+<h2 id="主循环工作">主循环工作</h2>
+<p>1.处理输入输出</p>
+<p>2.渲染</p>
+<p>3.处理定时器</p>
+<hr>
+<h2 id="定时器">定时器</h2>
+<ul>
+<li>
+<p>update    每帧调用</p>
+</li>
+<li>
+<p>schedule  自定义时间调用</p>
+</li>
+</ul>
+
+                </section>
+            </article>
+
+            
+
+            
+
+            
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://github.com/01-sun">
+        <i class="fa fa-github-square"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+       © Copyright 2021 <i class="fa fa-heart" aria-hidden="true"></i> litou
+    
+    </p>
+    <p class="small">
+        Powered by <a href="http://www.gohugo.io/">Hugo</a> Theme By <a href="https://github.com/nodejh/hugo-theme-cactus-plus">nodejh</a>
+    </p>
+</footer>
+
+        </section>
+
+        <script src="https://01-sun.github.io/js/jquery-3.3.1.min.js"></script>
+<script src="https://01-sun.github.io/js/main.js"></script>
+<script src="https://01-sun.github.io/js/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+    </body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<meta name="author" content="litou">
+		<meta name="description" content="Site Description">
+		<meta name="generator" content="Hugo 0.81.0" />
+		<title>UE4-总结 &middot; LITOU&#39;s BLOG</title>
+		<link rel="shortcut icon" href="https://01-sun.github.io/images/favicon.ico">
+		<link rel="stylesheet" href="https://01-sun.github.io/css/style.css">
+		<link rel="stylesheet" href="https://01-sun.github.io/css/highlight.css">
+
+		
+		<link rel="stylesheet" href="https://01-sun.github.io/css/font-awesome.min.css">
+		
+
+		
+
+		
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://01-sun.github.io/'> <span class="arrow">←</span>Home</a>
+	
+	<a href='https://01-sun.github.io/posts'>Archive</a>
+	<a href='https://01-sun.github.io/tags'>Tags</a>
+	<a href='https://01-sun.github.io/about'>About</a>
+
+	
+
+	
+</nav>
+
+
+        <section id="wrapper" class="post">
+            <article>
+                <header>
+                    <h1>
+                        UE4-总结
+                    </h1>
+                    <h2 class="headline">
+                    Jun 28, 2021 11:20
+                    · 115 words
+                    · 1 minute read
+                      <span class="tags">
+                      
+                      
+                          
+                              <a href="https://01-sun.github.io/tags/%E9%9D%A2%E7%BB%8F">面经</a>
+                          
+                              <a href="https://01-sun.github.io/tags/%E6%80%BB%E7%BB%93">总结</a>
+                          
+                      
+                      
+                      </span>
+                    </h2>
+                </header>
+                
+                <section id="post-body">
+                    <p><a href="#GamePlay%E6%A1%86%E6%9E%B6">GamePlay框架</a></p>
+<p><a href="#%E5%8F%8D%E5%B0%84%E7%B3%BB%E7%BB%9F">反射系统</a></p>
+<p><a href="#%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%9D%97">网络模块</a></p>
+<p><a href="#UI%E6%A8%A1%E5%9D%97">UI模块</a></p>
+<p><a href="#%E6%8A%80%E8%83%BD%E6%A8%A1%E5%9D%97">技能模块</a></p>
+<p><a href="#%E8%92%99%E5%A4%AA%E5%A5%87">蒙太奇</a></p>
+<p><a href="#C++%E8%93%9D%E5%9B%BE%E4%BA%92%E8%B0%83">C++蓝图互调</a></p>
+<p><a href="#%E6%B2%A1%E6%9C%89UFUNCTION%E5%BD%B1%E5%93%8D">没有UFUNCTION影响</a></p>
+<p><a href="#ActorComponent%E5%92%8CSceneComponent">ActorComponent和SceneComponent</a></p>
+<p><a href="#setVisible">setVisible</a></p>
+<p><a href="#%E5%91%BD%E5%90%8D%E8%A7%84%E8%8C%83">命名规范</a></p>
+<hr>
+<h2 id="网络模块">网络模块</h2>
+<h3 id="actor-replication">Actor Replication</h3>
+<p>设置actor:replicate = true</p>
+<p>让actor所有者得到同步: netrelevant</p>
+<h3 id="property-replication">Property Replication</h3>
+<p>只有将属性标记Replicated，才会复制</p>
+<p>两种同步属性方式:</p>
+<ul>
+<li>
+<p>服务器变化，同步客户端</p>
+</li>
+<li>
+<p>属性发生变化，调用ONRep_函数()</p>
+</li>
+</ul>
+<h3 id="function-call-replication">function call replication</h3>
+<p>PRCs 是一种将函数调用和执行分开的方式。</p>
+<hr>
+<h2 id="ui模块">UI模块</h2>
+<ul>
+<li>
+<p>Slate:C++写</p>
+</li>
+<li>
+<p>UMG: 图形界面</p>
+</li>
+</ul>
+<hr>
+<h2 id="技能模块">技能模块</h2>
+<h3 id="获得技能">获得技能</h3>
+<p>拥有者继承UAbilitySystemComponent类
+做成单例去定义获取技能GetAbility()</p>
+<p>技能继承GamePlayAbility类 
+* 释放技能效果 EventActiveAbility()
+* 技能结束 EventOnEndAbility()</p>
+<h3 id="施放技能">施放技能</h3>
+<pre><code>调用TryActiveAbilityByClass()
+
+调用效果commitAbility commitAbilityCoolDown
+
+结束技能 EndAbility
+</code></pre>
+<h3 id="技能消耗cd">技能消耗CD</h3>
+<p>消耗CD继承AbilityEffect类</p>
+<p>CD的类duration policy选择hasduration,当技能释放会给技能槽一个独占Tag，只有等技能结束Tag消失，才能再次复制Tag</p>
+<h3 id="发送伤害">发送伤害</h3>
+<p>通过碰撞发送
+sendGamePlayEventtoActor() 发送伤害</p>
+<h3 id="处理伤害">处理伤害</h3>
+<p>接受伤害 WaitGamePlayEvent()</p>
+<p>伤害也继承Ability，duration policy为itstant</p>
+<hr>
+<h2 id="蒙太奇">蒙太奇</h2>
+<p>What: 类似于动画组合</p>
+<p>Why:</p>
+<pre><code>* 适用于不想放在状态机里的短暂动作
+
+* 适用于复杂动作
+
+* 适用于分层骨骼混合
+</code></pre>
+<hr>
+<h2 id="c蓝图互调">C++蓝图互调</h2>
+<p>C++调用蓝图:BlueprintImplementableEvent参数</p>
+<p>蓝图调用C++:BlueprintCallable参数</p>
+<hr>
+<h2 id="没有ufunction影响">没有UFUNCTION影响</h2>
+<p>没有该宏会被回收（暂时不清楚其他）</p>
+<hr>
+<h2 id="actorcomponent和scenecomponent">ActorComponent和SceneComponent</h2>
+<p>ActorComponent是SceneComponent父类</p>
+<p>SceneComponent提供transform 和 互相嵌套</p>
+<hr>
+<h2 id="setvisible">setVisible</h2>
+<ul>
+<li>
+<p>可见</p>
+<ul>
+<li>
+<p>visible 可交互</p>
+</li>
+<li>
+<p>hit test invisibl:不可交互，作用子类</p>
+</li>
+<li>
+<p>hit test invisibl:不可交互，作用本身</p>
+</li>
+</ul>
+</li>
+<li>
+<p>不可见</p>
+<ul>
+<li>
+<p>hidden: 占内存</p>
+</li>
+<li>
+<p>collapse: 不占空间</p>
+</li>
+</ul>
+</li>
+<li>
+<p>隐藏</p>
+</li>
+</ul>
+<hr>
+<h2 id="命名规范">命名规范</h2>
+<p>Axxx  &ndash;继承Actor</p>
+<p>Exxx  &ndash;枚举</p>
+<p>Fxxx  &ndash;原生C++</p>
+<p>Ixxx  &ndash;接口</p>
+<p>Sxxx  &ndash;Slate类</p>
+<p>Txxx  &ndash;模板类</p>
+<p>Uxxx  &ndash;继承UObject</p>
+
+                </section>
+            </article>
+
+            
+
+            
+
+            
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://github.com/01-sun">
+        <i class="fa fa-github-square"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+       © Copyright 2021 <i class="fa fa-heart" aria-hidden="true"></i> litou
+    
+    </p>
+    <p class="small">
+        Powered by <a href="http://www.gohugo.io/">Hugo</a> Theme By <a href="https://github.com/nodejh/hugo-theme-cactus-plus">nodejh</a>
+    </p>
+</footer>
+
+        </section>
+
+        <script src="https://01-sun.github.io/js/jquery-3.3.1.min.js"></script>
+<script src="https://01-sun.github.io/js/main.js"></script>
+<script src="https://01-sun.github.io/js/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+    </body>
+</html>

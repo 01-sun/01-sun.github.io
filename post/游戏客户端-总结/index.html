@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<meta name="author" content="litou">
+		<meta name="description" content="Site Description">
+		<meta name="generator" content="Hugo 0.81.0" />
+		<title>游戏客户端-总结 &middot; LITOU&#39;s BLOG</title>
+		<link rel="shortcut icon" href="https://01-sun.github.io/images/favicon.ico">
+		<link rel="stylesheet" href="https://01-sun.github.io/css/style.css">
+		<link rel="stylesheet" href="https://01-sun.github.io/css/highlight.css">
+
+		
+		<link rel="stylesheet" href="https://01-sun.github.io/css/font-awesome.min.css">
+		
+
+		
+
+		
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://01-sun.github.io/'> <span class="arrow">←</span>Home</a>
+	
+	<a href='https://01-sun.github.io/posts'>Archive</a>
+	<a href='https://01-sun.github.io/tags'>Tags</a>
+	<a href='https://01-sun.github.io/about'>About</a>
+
+	
+
+	
+</nav>
+
+
+        <section id="wrapper" class="post">
+            <article>
+                <header>
+                    <h1>
+                        游戏客户端-总结
+                    </h1>
+                    <h2 class="headline">
+                    Jun 27, 2021 01:50
+                    · 144 words
+                    · 1 minute read
+                      <span class="tags">
+                      
+                      
+                          
+                              <a href="https://01-sun.github.io/tags/%E9%9D%A2%E7%BB%8F">面经</a>
+                          
+                              <a href="https://01-sun.github.io/tags/%E6%80%BB%E7%BB%93">总结</a>
+                          
+                      
+                      
+                      </span>
+                    </h2>
+                </header>
+                
+                <section id="post-body">
+                    <p><a href="#UI%E4%BC%98%E5%8C%96">UI优化</a></p>
+<p><a href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BC%98%E5%8C%96">客户端优化</a></p>
+<p><a href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BC%98%E5%8C%96">性能测试工具</a></p>
+<p><a href="#%E7%A7%BB%E5%8A%A8%E7%AB%AF%E7%BA%B9%E7%90%86%E5%8E%8B%E7%BC%A9%E6%A0%BC%E5%BC%8F">移动端纹理压缩格式</a></p>
+<p><a href="#%E7%BD%91%E7%BB%9C%E5%90%8C%E6%AD%A5%E6%96%B9%E6%A1%88">网络同步方案</a></p>
+<p><a href="#%E5%B8%B8%E8%A7%81%E7%AE%97%E6%B3%95">常见算法</a></p>
+<p><a href="#%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A">名词解释</a></p>
+<hr>
+<h2 id="ui优化">UI优化</h2>
+<p>目的：加快UI运行速度</p>
+<ol>
+<li>
+<p>动静分离</p>
+</li>
+<li>
+<p>渲染层和逻辑层分离</p>
+</li>
+<li>
+<p>合并图集</p>
+<ul>
+<li>
+<p>How：同一层ui的散图可合并</p>
+</li>
+<li>
+<p>Why：来自同一图集使用一次drawcall；节省内存(多于白边，多余图片信息)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>减少UI层次： 不同层不同drawcall</p>
+</li>
+</ol>
+<hr>
+<h2 id="客户端优化">客户端优化</h2>
+<p>目的：减少手机发热</p>
+<ol>
+<li>
+<p>减少GPU渲染：</p>
+<ul>
+<li>
+<p>减少多余点面，可用低模+法线贴图(就是将复杂物体的凹凸信息记录到图片的rgb通道里面)</p>
+</li>
+<li>
+<p>不用实时光照，使用烘焙光照</p>
+</li>
+<li>
+<p>不使用透明材质</p>
+</li>
+<li>
+<p>使用HLOD，MipMAp</p>
+</li>
+<li>
+<p>使用2的幂次方尺寸的贴图(方便光栅化采样,驱动优化时会把不是2的幂次方的图转成2的幂次方的图,浪费性能)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>减少CPU计算：</p>
+<ul>
+<li>
+<p>合批</p>
+</li>
+<li>
+<p>代码优化</p>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="性能测试工具">性能测试工具</h2>
+<p>目的：检测游戏性能</p>
+<p>Anroid: android-ndk-profiler</p>
+<p>Ios: instruments</p>
+<p>pc: 引擎自带： UE4-stat &hellip;    cocos2dx debug左下角</p>
+<hr>
+<h2 id="移动端纹理压缩格式">移动端纹理压缩格式</h2>
+<p>Android: etc1,etc2(已支持ios,低版本不适用)</p>
+<p>IOS: pvr(正方形格式),astc(低版本不适用)</p>
+<p>png和etc的区别：</p>
+<ul>
+<li>
+<p>相同点:都是压缩纹理</p>
+</li>
+<li>
+<p>不同点:  png不能被gpu识别,会进行解码,占用空间又浪费性能;   etc可以直接被gpu识别</p>
+</li>
+</ul>
+<hr>
+<h2 id="网络同步方案">网络同步方案</h2>
+<p>帧同步VS状态同步  :计算放在服务器还是客户端</p>
+<p>状态同步：</p>
+<p>What: 客户端发送状态给服务器，服务器计算完返回给各个客户端，客户端收到后进行渲染</p>
+<p>Why:安全 适合MMO</p>
+<p>底层网络协议:TCP</p>
+<p>帧同步：</p>
+<p>What: 客户端发送状态给服务器，服务器广播转发给各个客户端,客户端计算完进行渲染。</p>
+<p>Why:效果好，好作弊</p>
+<p>How：</p>
+<pre><code>1. 一致的输入和计算,用定点数,相同的随机种子等。
+
+2. 逻辑帧和渲染帧分离
+</code></pre>
+<p>减少流量: 优化数据结构</p>
+<p>丢包: 序号和超时重传</p>
+<p>优化方案: 预测 回滚 快照</p>
+<p>底层网络协议:UDP、KCP</p>
+<hr>
+<h2 id="常见算法">常见算法</h2>
+<h3 id="射线检测算法">射线检测算法</h3>
+<p>目的: 碰撞检测 通过射线与碰撞盒相交测试</p>
+<p>碰撞条件: 射线进入平面的最大t值&lt;离开平面最小t值</p>
+<p><img src="/img/RayCollisionDetection.webp" alt=""></p>
+<h3 id="包围盒-碰撞体算法">包围盒-碰撞体算法</h3>
+<p>目的:碰撞检测</p>
+<p>类型:</p>
+<pre><code>* AABB轴对齐盒: **优点**:直观简单  **缺点**:不随物体旋转
+
+* OBB轴中心盒: **优点**:随物体旋转
+</code></pre>
+<p>OBB表示: 一个中心点,一个旋转矩阵,3个边长</p>
+<p>优化空间中的碰撞检测: 剔除算法、八叉树、射线检测</p>
+<h3 id="a算法">A*算法</h3>
+<p>目的:快速寻路</p>
+<p>定义: f(n)=g(n)+h(n)</p>
+<pre><code>* 其中g(n)式实际路程代价,h(n)是启发式代价
+
+* A*相当于迪杰斯特拉和BFS的结合，按照权重比为  f(n)=kg(n)+(1-k)h(n) 
+</code></pre>
+<p>具体过程:</p>
+<pre><code>1.维护两张表openlist和closelist。
+
+2.将起始点放入openlist,设置优先级最高。
+
+3.在openlist取优先级最高的点,放入closelist,遍历他周围的点
+
+4. 若点是终点,则往回遍历子节点,便是最短路径 。
+
+5.若不是终点,进行代价计算把总代价最低的放进openlist,设置优先级，设置为父节点
+</code></pre>
+<p>启发式算法:</p>
+<pre><code>* 曼哈顿算法:适用于八个方向
+
+* 对角算:使用对角
+
+* 欧几里得:适用于任意方向
+</code></pre>
+<h3 id="刀光拖尾算法">刀光拖尾算法</h3>
+<p>目的:美术实现浪费内存、改用程序实现</p>
+<p>思路:</p>
+<pre><code>1. 获取动作和采样点。
+
+2. 采样插值平滑曲线(B样条曲线)
+
+3. 贴材质
+</code></pre>
+<hr>
+<h2 id="名词解释">名词解释</h2>
+<p><strong>DrawCall</strong>:</p>
+<pre><code>* What:GPU调用渲染API命令GPU进行渲染
+
+* DrawCall性能消耗的原因: GPU的模式切换
+
+* 提升DrawCall效率: 1.合批  2.优化驱动
+
+* 怎么合批: 同一图集
+</code></pre>
+
+                </section>
+            </article>
+
+            
+
+            
+
+            
+
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://github.com/01-sun">
+        <i class="fa fa-github-square"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+       © Copyright 2021 <i class="fa fa-heart" aria-hidden="true"></i> litou
+    
+    </p>
+    <p class="small">
+        Powered by <a href="http://www.gohugo.io/">Hugo</a> Theme By <a href="https://github.com/nodejh/hugo-theme-cactus-plus">nodejh</a>
+    </p>
+</footer>
+
+        </section>
+
+        <script src="https://01-sun.github.io/js/jquery-3.3.1.min.js"></script>
+<script src="https://01-sun.github.io/js/main.js"></script>
+<script src="https://01-sun.github.io/js/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+    </body>
+</html>
